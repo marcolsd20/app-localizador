@@ -31,7 +31,6 @@ nav button:hover { background:#00ffcc; color:black; box-shadow:0 0 30px #00ffcc,
 
 .hidden{ display:none; }
 .loading-text{ margin-top:20px; font-size:18px; }
-
 .sim-log{ text-align:left; background:#111; color:#00ffcc; padding:10px; border-radius:8px; max-height:400px; overflow:auto; font-size:14px; box-shadow:0 0 15px #00ffcc; display:flex; flex-direction:column; }
 .result{ margin-top:15px; font-size:18px; font-weight:bold; }
 .fade-in{ opacity:0; transform: scale(0.95); animation: fadeIn 1s forwards; }
@@ -43,7 +42,6 @@ nav button:hover { background:#00ffcc; color:black; box-shadow:0 0 30px #00ffcc,
 #map{ width:90%; height:220px; border-radius:10px; box-shadow:0 0 20px #00ffcc; margin: 10px auto; filter:blur(8px); }
 #assinatura-template{ display:none; text-align:center; margin-top:20px; padding:20px; border:2px solid #00ffcc; border-radius:15px; font-size:18px; max-width:400px; margin-left:auto; margin-right:auto; box-shadow:0 0 25px #00ffcc; }
 #imgWhats{ width:320px; margin-top:20px; border-radius:15px; box-shadow:0 0 30px #00ffcc,0 0 50px #00ffe5; }
-
 #whatsapp h2{ color:#00ffcc; text-shadow:0 0 15px #00ffe5,0 0 30px #00ffcc; font-size:28px; }
 #logWhats{ background:#111; color:#00ffcc; padding:15px; border-radius:10px; max-height:300px; overflow:auto; font-size:14px; box-shadow:0 0 20px #00ffcc,0 0 40px #00ffe5; }
 #btnWhatsFlutuante{ position:fixed; bottom:90px; right:20px; z-index:999; background:#00ffcc; color:black; border:none; padding:15px 20px; border-radius:50px; font-size:20px; cursor:pointer; box-shadow:0 0 25px #00ffcc,0 0 50px #00ffe5; transition: all 0.2s; }
@@ -95,43 +93,75 @@ nav button:hover { background:#00ffcc; color:black; box-shadow:0 0 30px #00ffcc,
 
 <!-- Modais -->
 <div id="login-modal">
-<div class="content">
-<h2>🔐 Login Necessário</h2>
-<input type="text" id="login-usuario" placeholder="Usuário" class="btn" style="width:80%; margin:5px 0;">
-<input type="password" id="login-senha" placeholder="Senha" class="btn" style="width:80%; margin:5px 0;">
-<br>
-<button id="btnLogin" class="btn">Entrar</button>
-<button id="btnRegistrarTela" class="btn">Criar Conta</button>
-</div>
+  <div class="content">
+    <h2>🔐 Login Necessário</h2>
+    <input type="email" id="login-usuario" placeholder="Email" class="btn" style="width:80%; margin:5px 0;">
+    <input type="password" id="login-senha" placeholder="Senha" class="btn" style="width:80%; margin:5px 0;">
+    <br>
+    <button id="btnLogin" class="btn">Entrar</button>
+    <button id="btnRegistrarTela" class="btn">Criar Conta</button>
+  </div>
 </div>
 
 <div id="register-modal">
-<div class="content">
-<h2>📝 Criar Conta</h2>
-<input type="text" id="register-usuario" placeholder="Usuário" class="btn" style="width:80%; margin:5px 0;">
-<input type="password" id="register-senha" placeholder="Senha" class="btn" style="width:80%; margin:5px 0;">
-<br>
-<button id="btnRegister" class="btn">Registrar</button>
-<button id="btnVoltarRegister" class="btn">Voltar</button>
-</div>
-</div>
-
-<div id="paywall-modal">
-<div class="content">
-<h2>🚀 Assinatura Necessária</h2>
-<p>Para desbloquear o resultado, assine agora:</p>
-<p style="font-size:24px; font-weight:bold;">R$ 24,99</p>
-<a href="https://seu-link-de-assinatura.com" target="_blank" class="btn" id="btnAssinar">ASSINAR AGORA</a>
-<br>
-<button id="cancelar-assinatura" class="btn">Cancelar</button>
-</div>
+  <div class="content">
+    <h2>📝 Criar Conta</h2>
+    <input type="email" id="register-usuario" placeholder="Email" class="btn" style="width:80%; margin:5px 0;">
+    <input type="password" id="register-senha" placeholder="Senha" class="btn" style="width:80%; margin:5px 0;">
+    <br>
+    <button id="btnRegister" class="btn">Registrar</button>
+    <button id="btnVoltarRegister" class="btn">Voltar</button>
+  </div>
 </div>
 
-<button class="floating-btn" id="btnFlutuante">ASSINAR</button>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script>
-// --- Matrix ---
+const SUPABASE_URL = window.SUPABASE_URL;
+const SUPABASE_KEY = window.SUPABASE_KEY;
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Mostrar login
+window.onload = () => { document.getElementById('login-modal').style.display = 'flex'; };
+
+// Login
+document.getElementById('btnLogin').addEventListener('click', async ()=>{
+  const email = document.getElementById('login-usuario').value.trim();
+  const password = document.getElementById('login-senha').value.trim();
+  if(!email||!password) return alert('Preencha email e senha!');
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if(error) return alert(error.message);
+  document.getElementById('login-modal').style.display = 'none';
+  alert('Login realizado!');
+});
+
+// Registro
+document.getElementById('btnRegister').addEventListener('click', async ()=>{
+  const email = document.getElementById('register-usuario').value.trim();
+  const password = document.getElementById('register-senha').value.trim();
+  if(!email||!password) return alert('Preencha email e senha!');
+  const { data, error } = await supabase.auth.signUp({ email, password });
+  if(error) return alert(error.message);
+  alert('Conta criada! Faça login.');
+  document.getElementById('register-modal').style.display = 'none';
+  document.getElementById('login-modal').style.display = 'flex';
+});
+
+// Alternar telas login/registro
+document.getElementById('btnRegistrarTela').addEventListener('click', ()=>{ 
+  document.getElementById('login-modal').style.display='none'; 
+  document.getElementById('register-modal').style.display='flex'; 
+});
+document.getElementById('btnVoltarRegister').addEventListener('click', ()=>{
+  document.getElementById('register-modal').style.display='none';
+  document.getElementById('login-modal').style.display='flex';
+});
+
+// Abas
+function mostrarAba(id){ document.querySelectorAll('.section').forEach(sec=>sec.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+window.mostrarAba = mostrarAba;
+
+// Matrix
 const canvas=document.getElementById("matrix"),ctx=canvas.getContext("2d");
 canvas.height=window.innerHeight; canvas.width=window.innerWidth;
 const letters="01",fontSize=14,columns=canvas.width/fontSize,drops=Array(Math.floor(columns)).fill(1);
@@ -140,113 +170,7 @@ ctx.fillStyle="#00ffcc"; ctx.font=fontSize+"px monospace";
 for(let i=0;i<drops.length;i++){ const text=letters[Math.floor(Math.random()*letters.length)]; ctx.fillText(text,i*fontSize,drops[i]*fontSize);
 if(drops[i]*fontSize>canvas.height&&Math.random()>0.975)drops[i]=0; drops[i]++; } }
 setInterval(draw,33);
-
-// --- Abas ---
-function mostrarAba(id){ document.querySelectorAll('.section').forEach(sec=>sec.classList.remove('active')); document.getElementById(id).classList.add('active'); }
-
-// --- Localizador ---
-const btnLocalizar=document.getElementById("btnLocalizar"),
-inputTarget=document.getElementById("inputTarget"),
-loadingLocalizacao=document.getElementById("loadingLocalizacao"),
-logLocalizacao=document.getElementById("logLocalizacao"),
-resultadoLocalizacao=document.getElementById("resultadoLocalizacao"),
-mapDiv=document.getElementById("map"),
-assinaturaTemplate=document.getElementById("assinatura-template");
-
-let map;
-btnLocalizar.addEventListener("click",()=>{
-    const valor=inputTarget.value.trim();
-    const emailRegex=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const telRegex=/^\d{8,15}$/;
-    if(!emailRegex.test(valor) && !telRegex.test(valor)){ alert("Digite um número de telefone ou e-mail válido!"); return; }
-    loadingLocalizacao.classList.remove("hidden");
-    const etapas=["Conectando ao sistema...","Verificando rede...","Localizando alvo...","Calculando coordenadas...","Descriptografando dados...","Preparando mapa..."];
-    setTimeout(()=>{
-        loadingLocalizacao.classList.add("hidden");
-        simularProcesso(logLocalizacao,resultadoLocalizacao,etapas,()=>{
-            resultadoLocalizacao.innerHTML="📍 Localização encontrada!";
-            mapDiv.classList.remove('hidden');
-            assinaturaTemplate.style.display="block";
-            if(!map){
-                map = L.map('map');
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
-                if(navigator.geolocation){ navigator.geolocation.getCurrentPosition(pos=>{ map.setView([pos.coords.latitude,pos.coords.longitude],13); L.marker([pos.coords.latitude,pos.coords.longitude]).addTo(map); },
-                ()=>{ map.setView([-23.5505,-46.6333],13); L.marker([-23.5505,-46.6333]).addTo(map); }); } else{ map.setView([-23.5505,-46.6333],13); L.marker([-23.5505,-46.6333]).addTo(map); }
-            }
-            map.getContainer().style.filter='blur(8px)';
-        });
-    },1000);
-});
-
-function simularProcesso(logEl, finalEl, etapas, callback){
-    logEl.innerHTML=""; logEl.classList.remove("hidden"); finalEl.classList.add("hidden");
-    let i=0;
-    function proximo(){
-        if(i<etapas.length){ logEl.innerHTML+="> "+etapas[i]+"<br>"; logEl.scrollTop=logEl.scrollHeight; i++; setTimeout(proximo,500+Math.random()*700); }
-        else{ logEl.classList.add("hidden"); finalEl.classList.remove("hidden"); callback(); }
-    }
-    proximo();
-}
-
-// --- WhatsApp ---
-const btnWhats = document.getElementById("btnWhats"),
-inputWhats = document.getElementById("inputWhats"),
-loadingWhats = document.getElementById("loadingWhats"),
-logWhats = document.getElementById("logWhats"),
-resultadoWhats = document.getElementById("resultadoWhats"),
-imgWhats = document.getElementById("imgWhats");
-
-btnWhats.addEventListener("click",()=>{
-    const valor=inputWhats.value.trim();
-    const telRegex=/^\d{8,15}$/;
-    if(!telRegex.test(valor)){ alert("Digite um número de telefone válido!"); return; }
-    loadingWhats.classList.remove("hidden");
-    const etapas=["Acessando servidor do WhatsApp...","Verificando dados...","Extraindo mensagens...","Processando conteúdo...","Preparando exibição..."];
-    setTimeout(()=>{
-        loadingWhats.classList.add("hidden");
-        simularProcesso(logWhats,resultadoWhats,etapas,()=>{
-            resultadoWhats.innerHTML="💬 Mensagens extraídas com sucesso!";
-            imgWhats.classList.remove("hidden");
-            imgWhats.classList.add("fade-in");
-        });
-    },1000);
-});
-
-// --- Botões flutuantes ---
-document.getElementById("btnFlutuante").addEventListener("click",()=>{ window.open("https://seu-link-de-assinatura.com","_blank"); });
-document.getElementById("btnAssinar").addEventListener("click",()=>{ window.open("https://seu-link-de-assinatura.com","_blank"); });
-document.getElementById("btnWhatsFlutuante").addEventListener("click", ()=>{ window.open("https://seu-link-de-assinatura.com","_blank"); });
-
-// --- Login & Registro ---
-const SERVER_URL = window.location.origin;
-window.onload = ()=>{ document.getElementById('login-modal').style.display='flex'; };
-
-document.getElementById("btnLogin").addEventListener("click", async ()=>{
-    const usuario=document.getElementById("login-usuario").value.trim();
-    const senha=document.getElementById("login-senha").value.trim();
-    if(!usuario||!senha){ alert("Preencha usuário e senha!"); return; }
-    try{
-        const res = await fetch(`${SERVER_URL}/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario,senha}) });
-        const data = await res.json();
-        if(data.success){ document.getElementById('login-modal').style.display='none'; mostrarAba('localizador'); }
-        else alert(data.error);
-    } catch(err){ alert("Erro de conexão com o servidor."); console.error(err); }
-});
-
-document.getElementById("btnRegistrarTela").addEventListener("click", ()=>{ document.getElementById('login-modal').style.display='none'; document.getElementById('register-modal').style.display='flex'; });
-document.getElementById("btnVoltarRegister").addEventListener("click", ()=>{ document.getElementById('register-modal').style.display='none'; document.getElementById('login-modal').style.display='flex'; });
-
-document.getElementById("btnRegister").addEventListener("click", async ()=>{
-    const usuario=document.getElementById("register-usuario").value.trim();
-    const senha=document.getElementById("register-senha").value.trim();
-    if(!usuario||!senha){ alert("Preencha usuário e senha!"); return; }
-    try{
-        const res = await fetch(`${SERVER_URL}/register`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario,senha}) });
-        const data = await res.json();
-        if(data.success){ alert("Conta criada com sucesso! Faça login."); document.getElementById('register-modal').style.display='none'; document.getElementById('login-modal').style.display='flex'; }
-        else alert(data.error);
-    } catch(err){ alert("Erro de conexão com o servidor."); console.error(err); }
-});
 </script>
+
 </body>
 </html>
